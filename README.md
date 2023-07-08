@@ -1,12 +1,12 @@
 # Stock Portfolio Valuation System
 
-The Stock Portfolio Valuation System (SPVS) is an easy-to-integrate open-source Python framework designed for quantitative analysis of stock portfolio performance.
+The Stock Portfolio Valuation System (SPVS) is an easy-to-integrate open-source Python framework designed for quantitative analysis of stock portfolio performance for stocks on the S&P 500. 
 
 ## Components
 The framework consists of the following five components:
 
 ### 1. DataExtract: 
-This component generates the prices.csv and trades.csv files. You can replace it with your own web scraper or data extraction tool to generate the required price and trade data. Please refer to the data/prices.csv and data/trades.csv files for formatting examples. The component uses standard Python random number generation (RNG) to calculate stock trades, ticker symbols, and in/out dates in a flexible and easy-to-parameterize manner.
+This component generates the prices.csv and trades.csv files. You can replace it with your own web scraper or data extraction tools to procure the required prices and trades data. Please refer to the data/prices.csv and data/trades.csv files for formatting examples. It is currently set up to scrape the web for historical S&P 500 stock prices using the popular open-source yfinance library. Portfolios are generated pseudo-randomly using standard Python Random-Number-Generation (RNG) and are represented in trades.csv.
 
 ### 2. DataLoader: 
 The DataLoader component parses the prices.csv and trades.csv files and stores them in the SQLite3 database located in data/sql_data.db (defined in setup.py). It also handles the retrieval of data from the database using data_access.py.
@@ -23,10 +23,14 @@ The Regression component performs ridge and lasso regressions.
 ## How to Use
 Follow these steps to use the Stock Portfolio Valuation System:
 
-1. Add your own prices.csv and trades.csv files to the /data/ directory.
-2. Run setup.py to set up the necessary database and dependencies.
-3. Trigger main.py with the desired function to perform the analysis.
-4. Feel free to customize and integrate the Stock Portfolio Valuation System into your own projects.
+1. Install the popular open-source yfinance library if you do not yet have it if you plan to use DataExtract. To do this, run:
+   ```
+   pip install yfinance
+   ```
+2. Download a S&P 500 stock prices and a randomly generated portfolio. If you have your own prices.csv and trades.csv files, you can skip this step and add them to the /data/ directory. 
+3. Run DataLoader/setup.py to start up the necessary database and dependencies.
+4. Trigger main.py with the desired function to perform the analysis.
+5. Feel free to customize and integrate the Stock Portfolio Valuation System into your own projects.
 
 Please note that this README provides a brief overview of the system. For more detailed instructions and examples, refer to the comments within the source code or reach out to me at kelemen.erik@gmail.com.
 
