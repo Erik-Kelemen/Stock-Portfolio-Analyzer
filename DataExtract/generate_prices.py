@@ -5,6 +5,8 @@ import random
 import pandas as pd
 import os
 
+canadian_stocks = ["RY.TO", "SHOP.TO", "BNS.TO", "TD.TO", "ENB.TO", "CAD=X"]
+
 def load_SNP500_tickers():
     filepath = 'S&P_500_tickers.txt'
 
@@ -19,14 +21,13 @@ def load_SNP500_tickers():
         all_tickers = tickers.Symbol.to_list()
         with open(filepath, 'w') as file:
             file.writelines('\n'.join(all_tickers))
-    print(f"Tickers loaded: {all_tickers}")
     return all_tickers
 
 def load_prices(target_file, selected_tickers, start_date, end_date, time_intervals):
     with open(target_file, mode='w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(['date', 'time', 'ticker', 'bid', 'ask', 'currency'])
-
+        writer.writerow(['date', 'time', 'ticker', 'price', 'currency'])
+        #TODO: skip weekends to reduce load?
         current_date = start_date
         while current_date <= end_date:
             for interval in time_intervals:
@@ -39,10 +40,9 @@ def load_prices(target_file, selected_tickers, start_date, end_date, time_interv
                         continue
 
                     if not data.empty:
-                        bid = round(data['Close'][0], 2)
-                        ask = round(data['Close'][0] + 1.0, 2)  
-                        currency = 'USD'
-                        writer.writerow([current_date.strftime('%Y-%m-%d'), interval, ticker, bid, ask, currency])
+                        price = round(data['Close'][0], 2)
+                        currency = 'USD' if ticker not in canadian_stocks else 'CAD'
+                        writer.writerow([current_date.strftime('%Y-%m-%d'), interval, ticker, price, currency])
 
             current_date += datetime.timedelta(days=1)
 
@@ -50,10 +50,11 @@ def generate_prices(target_file = '../data/gen_prices.csv'):
     all_tickers = load_SNP500_tickers()
     num_tickers = 30
     selected_tickers = random.sample(all_tickers, num_tickers)
-
+    selected_tickers.extend(canadian_stocks)
+    
     # Establish date range 
     start_date = datetime.datetime(2023, 6, 1)
-    end_date = datetime.datetime(2023, 6, 2)
+    end_date = datetime.datetime(2023, 7, 8)
     time_intervals = ['09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30',
                     '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00']
 
