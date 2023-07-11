@@ -1,6 +1,6 @@
-# Stock Portfolio Valuation System
+# Stock Portfolio Backtester
 
-The Stock Portfolio Valuation System (SPVS) is an easy-to-integrate open-source Python framework designed for quantitative analysis of stock portfolio performance for stocks on the S&P 500. 
+The Stock Portfolio Backtester is an easy to use open-source Python framework for backtesting algorithmic trading strategies on historical S&P 500 and TSX stock prices, enabling users to implement trading algorithms and view portfolio performance in P&L. The backtester takes snapshots of stock prices at fixed timestamps from 9:30 to 16:00 by intervals of 30 minutes for a predetermined list of companies from the S&P 500 and TSX exchange and feeds them to the algorithm for analysis.
 
 ## Components
 The framework consists of the following five components:
@@ -23,11 +23,12 @@ The Regression component performs ridge and lasso regressions.
 ## How to Use
 Follow these steps to use the Stock Portfolio Valuation System:
 
-1. Install the popular open-source yfinance library if you do not yet have it if you plan to use DataExtract. To do this, run:
+1. To use DataExtract, install the popular open-source yfinance and BeautifulSoup libraries. To do this, run:
    ```
    pip install yfinance
+   pip install BeautifulSoup
    ```
-2. Download a S&P 500 stock prices and a randomly generated portfolio. If you have your own prices.csv and trades.csv files, you can skip this step and add them to the /data/ directory. 
+2. Download S&P 500 stock prices and a randomly generated portfolio. If you have your own prices.csv and trades.csv files, you can skip this step and add them to the /data/ directory. 
 3. Run DataLoader/setup.py to start up the necessary database and dependencies.
 4. Trigger main.py with the desired function to perform the analysis.
 5. Feel free to customize and integrate the Stock Portfolio Valuation System into your own projects.
