@@ -2,6 +2,9 @@
 
 The Trading Algorithm Backtester is an easy to use open-source Python framework for backtesting algorithmic trading strategies on historical S&P 500 and TSX stock prices, enabling users to implement technical trading algorithms and view portfolio performance in P&L. The backtester takes snapshots of stock prices at fixed timestamps from 9:30 to 16:00 by intervals of 30 minutes for a list of companies from the S&P 500 and TSX exchange and feeds them to the CalculationEngine for computing the positions and Net Asset Values (NAVs) of the portfolio.
 
+## Architecture
+![alt text](https://github.com/Erik-Kelemen/Trading-Algorithm-Backtester/blob/main/imgs/Backtester-Architecture.drawio.png)
+
 ## Components
 The framework consists of the following four components:
 
