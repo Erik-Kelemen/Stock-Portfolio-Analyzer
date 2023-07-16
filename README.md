@@ -1,56 +1,71 @@
 # Stock Portfolio Analyzer
 
-The Stock Portfolio Backtester is an easy to use open-source Python framework for backtesting stock portfolios on historical S&P 500 and TSX stock prices, enabling users to implement their trading strategies or import past trades and view portfolio performance in P&L. The backtester takes snapshots of stock prices at fixed timestamps from 9:30 to 16:00 by intervals of 30 minutes for a list of companies from the S&P 500 and TSX exchange and feeds them to the CalculationEngine for computing the positions and Net Asset Values (NAVs) of the portfolio.
+The Stock Portfolio Analyzer is an easy to use open-source Python application that allows users to upload CSVs of stock trades and view their portfolio’s P&L, Net Asset Value, volatility, alpha, beta, and Sharpe ratio over time.
+The application reads the user's portfolio into a SQLite3 database and scrapes the web for real-world historical stock prices of the involved tickers. It also downloads the treasury bill rates necessary for computing the risk-free rate for the Sharpe ratio. 
+The portfolio calculates Net Asset Value across time efficiently using through the use of matrix multiplication and NumPy broadcasting while accounting for currency conversion (USD and CAD are currently supported). 
+
+The analyzer also empowers users with advanced risk management tools, including Value at Risk (VaR) and efficient frontier analysis.
+
+All this data is presented on an intuitive, easy to use Streamlit dashboard for users to view an in-depth analysis of their portfolio.
 
 ## Architecture
 ![alt text](https://github.com/Erik-Kelemen/Stock-Portfolio-Analyzer/blob/main/imgs/StockPortfolioAnalyzer.drawio.png)
 
 ## Components
-The framework consists of the following four components:
+The framework consists of three primary components, plus an auxiliary Utils folder for generating dummy trade portfolios:
 
-### 1. DataLoader:
-#### generate_prices.py
-Creates a CSV of prices with the columns date, time, ticker, price, and currency. Web scrapes for S&P 500 and Toronto exchange (TSX) companies and takes a random sample of 30 USD and 5 CAD stocks for the trading data. You can customize this to fit the time frame and number of stocks you want. The data extractor then downloads prices for the list of stocks for every 30 minute interval during the trading day (09:30 to 16:00) for the range of dates provided.
+### 1. DataSource
+#### generate_trades.py
+Randomly generates a valid dummy portfolio with the following stocks for the year 2022, ignoring all weekends and market holidays -- 'AAPL', 'GOOGL', 'MSFT', 'AMZN', 'FB', "RY.TO", "SHOP.TO", "BNS.TO", "TD.TO", "ENB.TO". A "valid" portfolio is one that never tries to sell more shares of a particular stock than it holds. The output file will be written to data/trades.csv. Be careful if you do not want this overwritten!
+You can skip this step if you can supplement your own prices.csv, as long as it follows the specified format. Please refer to data/prices.csv for formatting examples. 
 
-You can replace this with your own web scraper to procure the required data, or you can supplement your own prices.csv, as long as it follows the specified format. Please refer to the data/prices.csv for more formatting examples. 
+### 2. DataManager:
+#### data_loader.py
+Populates the local SQLite3 database of prices with the columns date, time, ticker, price, and currency, by calling the web scraper with the list of tickers to download data for and the appropriate date range.
 
-### 2. TradingEngine:
+#### web_scraper.py
+Web scraper for the S&P 500 and Toronto exchange (TSX) using yfinance. 
+You can replace this with your own web scraper to procure the required data.
+
+### 3. PortfolioAnalyzer:
 #### controller.py
 Manages the communication layer between the prices.csv & trades.csv files with the trading_strategy class. Parses and loads the prices.csv file into a pandas dataframe to pass into the TradingStrategy. Filters for a specified lookback period (default 10 days) of the pool of stocks and delivers it to the system. 
 
-#### trading_engine.py
-This is the primary module for you to implement. The default trading engine generates trades randomly from the available options so long as they do not exceed the value of the current cash.
-
-### 3. PortfolioManager: 
 #### position_calculator.py
-Responsible for calculating all portfolio positions and Net Asset Values (NAVs) across time. It leverages matrix multiplication and numpy broadcasting to optimize calculations, taking into account currency conversions.
+Computes portfolio P&L, Net Asset Value, volatility, alpha, beta, and Sharpe ratio over time. It leverages matrix multiplication and numpy broadcasting to optimize calculations, taking into account currency conversions.
 
 #### quantitative_calculator.py
-Computes correlation coefficients between portfolios, as well as alphas, betas, and sharpe ratios of different hedging strategies.
+Computes portfolio Valuate at Risk (VaR) and efficient frontier analysis (EFA). 
 
-### 4. TODO: Regression: 
-The Regression component performs ridge and lasso regressions.
+#### analyzer.py
+Performs 
+
+### 4. Dashboard: 
+#### dashboard.py
+Streamlit dashboard for interfacing the data with user
+
+
 
 ## How to Use
 Follow these steps to use the Trading Algorithm Backtester:
 
-1. To use DataExtract, use your favorate package manager (I use pip) to install the popular yfinance, Pandas, NumPy, Requests, and BeautifulSoup libraries. 
-2. Download S&P 500 stock prices and a randomly generated portfolio. If you have your own prices.csv and trades.csv files, you can skip this step and add them to the /data/ directory. 
-3. Run DataLoader/setup.py to start up the necessary database and dependencies.
-4. Implement TradingEngine/trading_engine.py with your desired algorithmic trading strategy to trigger the backtester.
-5. Feel free to customize and integrate the Stock Portfolio Valuation System into your own projects.
+1. Use your favorite package manager (I use pip) to install the popular yfinance, Pandas, NumPy, Requests, BeautifulSoup, and Streamlit libraries. 
+2. Upload your trading portfolio as a CSV file with the columns date, ticker, quantity, to the data/ directory. If you do not have one, you can randomly generate one with the Utils/generate_trades.py script.
+3. Run DataAccessor/data_loader.py to spin up a local SQLite3 database to load the prices and trades into. This will automatically perform the web scraping for you.
+4. Run controller.py to compute the quantitative metrics.
+5. Run the streamlit dashboard with ```run streamlit interface.py``` in the interface directory.
+6. Feel free to customize and integrate the Stock Portfolio Analyzer into your own projects.
 
 ## Future Work
-The most immediate improvements to improve the robustness and accuracy of the backtester should be diversifying the stock portfolio and adding more foreign currencies from other exchanges. This includes adding additional web scrapers and sourcing to DataExtracts.
-
-Other ideas center around introducing complexity and nuance that may arise from real world trading:
-
-1. Slippage and Market Impact: Backtesters typically assume perfect execution of trades at the requested price. However, in reality, executing large orders can lead to slippage, where the actual execution price differs from the desired price due to market conditions and order size. Market impact is another related factor that considers how the execution of a large order affects the market itself.
+This project can be extended to improve robustness, flexibility, accuracy, reliability, and usefulness. Here are just some of my ideas:
+1. Slippage and Market Impact: This system assumes perfect execution of trades at the requested price. However, in reality, executing large orders can lead to slippage, where the actual execution price differs from the desired price due to market conditions and order size. Market impact is another related factor that considers how the execution of a large order affects the market itself.
 2. Transaction Costs: Backtesters may overlook transaction costs such as brokerage fees, commissions, exchange fees, and bid-ask spreads. These costs can eat into profits and impact the overall performance of a trading strategy or portfolio.
 3. Liquidity Constraints: This backtester assumes unlimited liquidity beyond the remaining amount, which means trades can be executed at any desired size without affecting market prices. In reality, liquidity constraints can arise, particularly when trading in less liquid markets or when dealing with large positions. These constraints can impact execution and the ability to enter or exit trades at desired prices.
 4. Order Types and Timing: This backtester only allows for market orders. However, in practice, traders use various types of orders, such as limit orders, stop-loss orders, trailing stops, or iceberg orders. The timing of order placement and cancellation, as well as the order routing mechanism, can also influence trading outcomes.
+5. Support for more diverse portfolios: To improve the robustness and accuracy of the backtester should be diversifying the stock portfolio and adding more foreign currencies from other exchanges. This may include adding additional web scrapers and sourcing to the DataManager. It also reduced dependency on the yfinance API.
+
 
 ## Closing Thoughts
 Please note that this README provides a brief overview of the system. For more detailed instructions and examples, refer to the comments within the source code or reach out to me at kelemen.erik@gmail.com.
 
-Enjoy analyzing and evaluating stock portfolio performance using the Trading Algorithm Backtester!
+Enjoy analyzing and evaluating stock portfolio performance using the Stock Portfolio Analyzer!
