@@ -1,26 +1,31 @@
 import pandas as pd
 import numpy as np
-import sqlite3
-
-import config
-import data_access
-import port_calcs
+import data_loader
+import portfolio_calc
 
 
 if __name__ == "__main__":
-    prices = data_access.load_prices();
-    trades = data_access.load_trades();
+    prices = data_loader.load_prices();
+    trades = data_loader.load_trades();
     print(prices.head())
     print(trades.head())
-    
-    # results = dict()
-    #
-    # results['corr1'] = port_calcs.port_correl(1001, 1005, "2013-01-01", "2013-02-15", trades, prices)
-    # results['corr2'] = port_calcs.port_correl(1001, 1005, "2013-01-20", "2013-03-01", trades, prices)
-    # results['corr3'] = port_calcs.port_correl(1001, 1005, "2013-01-01", "2013-02-28", trades, prices)
-    #
-    # results['avg1'] = port_calcs.avg_ret_30min(1001, "2013-01-01", "2013-02-28", trades, prices)
-    # results['avg2'] = port_calcs.avg_ret_30min(1005, "2013-01-01", "2013-02-28", trades, prices)
-    #
-    # print(results)
+    portfolio_engine = portfolio_calc.PortfolioCalculator(prices, trades)
+    NAV = portfolio_engine.nav()
+    PnL = portfolio_engine.profits_and_losses()
+    alphas = portfolio_engine.alphas()
+    betas = portfolio_engine.betas()
+    sharpes = portfolio_engine.sharpes()
 
+    risk_analyzer = analyzer.RiskAnalyzer(prices, trades, PnL)
+    variance = risk_analyzer.calculate_variance()
+    frontier = risk_analyzer.efficient_frontier()
+
+    ui = interface.UI()
+    data = {'NAV': NAV,
+            'PnL': PnL,
+            'alphas': alphas,
+            'betas': betas,
+            'sharpes': sharpes,
+            'variance': variance,
+            'frontier': frontier}
+    ui.show(data)
