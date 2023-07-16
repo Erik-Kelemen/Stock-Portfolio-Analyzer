@@ -7,9 +7,9 @@ class UI:
             x = df['X']
             y = df['Y']
             plt.plot(x, y, label='name')
+            plt.title(name)
+            plt.legend()
+            plt.savefig(f'{name}.png')     
+        # plt.xlabel('X')
+        # plt.ylabel('Y')
         
-        plt.xlabel('X')
-        plt.ylabel('Y')
-        plt.title('DataFrames Graph')
-        plt.legend()
-        plt.show()
