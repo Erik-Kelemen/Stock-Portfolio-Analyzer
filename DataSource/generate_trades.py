@@ -2,14 +2,21 @@ import csv
 import random
 from datetime import datetime, timedelta
 import sys
-sys.path.append('..')
 import constants
+import pathlib
+import os
+import streamlit as st
 """
 A script for generating a randomized, valid trades.csv file for use in the analyzer.
 A valid trades.csv is one that never tries to sell more shares of a ticker than it holds.
+Will not overwrite an existing one if there is already a trades.csv in data/.
 """
 
 def generate_dummy_trades():
+    if os.path.exists(constants.TRADES_FILE):
+        st.write(f"{constants.TRADES_FILE} found! Not overwriting.")
+        return
+    st.write(f"No file found at {constants.TRADES_FILE}, proceeding to generate one.")
     # Define the date range
     start_date = datetime(2022, 1, 1)
     end_date = datetime(2022, 12, 31)
@@ -49,4 +56,4 @@ def generate_dummy_trades():
         writer.writerow(['date', 'ticker', 'qty'])
         writer.writerows(trades_data)
 
-    print(f"Trades data generated and saved to {constants.TRADES_FILE}.")
+    st.write(f"Trades data generated and saved to {constants.TRADES_FILE}.")

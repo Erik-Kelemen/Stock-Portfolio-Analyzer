@@ -5,11 +5,12 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 
-import data_access
-import port_calcs
+from Accessor import data_loader
+from PortfolioAnalyzer import portfolio_calc
 
 class PortfolioCalculator:
-    PortfolioCalculator(prices, trades):
+    def PortfolioCalculator(prices, trades):
+        pass
 
     #mapped {date,time} --> conversion rate
     def CAD_to_USD(date, time, currency, price, date_time_to_rate):
@@ -65,10 +66,10 @@ class PortfolioCalculator:
         df2 = pd.DataFrame(np.zeros((p,n)), index=tickers)
         trades = trades.groupby(['date', 'ticker']).mean().reset_index()
         print(trades)
-        holdings = {date: }
-        for date in dates:
-            subset = trades[(trades['date'] == date)]
-            for row in subset:
+        # holdings = {date: }
+        # for date in dates:
+        #     subset = trades[(trades['date'] == date)]
+        #     for row in subset:
 
         # for ind, rows in trades.iterrows():
         #     df2['row'] = 1;
@@ -97,13 +98,13 @@ class PortfolioCalculator:
         return 0
 
     def profits_and_losses():
-
+        pass
     def alphas():
-
+        pass
     def betas():
-
+        pass
     def sharpe_ratios():
-
+        pass
     
 
 

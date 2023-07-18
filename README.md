@@ -42,8 +42,8 @@ Computes portfolio P&L, Net Asset Value, volatility, alpha, beta, and Sharpe rat
 Computes portfolio Value at Risk (VaR) and efficient frontier analysis (EFA) over time. 
 
 ### 4. Dashboard: 
-#### dash.ipynb
-A lightweight Jupyter dashboard to serve as the interface with users. Visualizes the data from the analyzer and manages the communication between the frontend and backend.
+#### dash.py
+A streamlit dashboard to serve as the interface with users. Visualizes the data from the analyzer and manages the communication between the frontend and backend.
 
 
 ## How to Use

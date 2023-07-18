@@ -1,18 +1,17 @@
 import pandas as pd
-import os
 import sqlite3
-import sys
-sys.path.append('..')
 import csv
 import constants
-import web_scraper
+import datetime
+from Accessor import web_scraper
+import streamlit as st
 
 class DBManager:
-    def instantiate_db_tables():
+    def __init__(self):
         """
         Create the required database tables if they do not already exist
         """
-        print("Initializing database...\n")
+        st.write("Initializing database...")
         conn = sqlite3.connect(constants.DB_FILE)
 
         conn.execute("""
@@ -30,94 +29,81 @@ class DBManager:
                     currency varchar)
             """)
 
-        print("Initialized database successfully in {constants.\n")
+        st.write(f"Initialized database successfully in {constants.DB_FILE}!\n")
 
         conn.commit()
         conn.close()
+    
+    def read_csv(self, file_name):
+        with open(file_name) as file:
+            reader = csv.reader(file)
+            next(reader)
+            rows = list(reader)
+        return rows
+        
+    def insert_trades(self):
+        """
+        Load trades from a csv file and insert them into the database
+        Returns the number of rows inserted
+        """
+        rows = self.read_csv(constants.TRADES_FILE)
+        conn = sqlite3.connect(constants.DB_FILE)
+        cursor = conn.cursor()
+            
+        cursor.executemany("""INSERT INTO trades (date, ticker, qty)
+                                VALUES(?, ?, ?)""", rows)
 
-    def insert_prices(file_name, dataframe, load_from_df = False):
+        conn.commit()
+        conn.close()
+        print(f"Inserted {cursor.rowcount} trades\n")
+        return cursor.rowcount
+    
+    def insert_prices(self):
         """
         Load prices from a csv file and insert them into the database
         Returns the number of rows inserted
         """
+        # rows = self.read_csv(constants.PRICES_FILE)
+        
         conn = sqlite3.connect(constants.DB_FILE)
         cursor = conn.cursor()
-        if load_from_df:
-            
-        else:
-            with open(file_name) as file:
-                reader = csv.reader(file)
-                next(reader)
-                rows = list(reader)
-        print(rows) 
         converted_rows = list(map(lambda row: [
             datetime.strptime(row[0], '%Y-%m-%d %H:%M').date().isoformat(),
             datetime.strptime(row[0], '%Y-%m-%d %H:%M').time().isoformat()] 
             + row[1:], rows))
         
         cursor.executemany("""INSERT INTO prices (date, ticker, price, currency)
-                                VALUES(?, ?, ?, ?, ?, ?)""", converted_rows)
+                                VALUES(?, ?, ?, ?)""", converted_rows)
 
         conn.commit()
         conn.close()
         return cursor.rowcount
-        
-    def insert_trades(file_name):
-        """
-        Load trades from a csv file and insert them into the database
-        Returns the number of rows inserted
-        """
+    
+    def get_table(self, table_name):
         conn = sqlite3.connect(constants.DB_FILE)
-        cursor = conn.cursor()
-        with open(file_name) as file:
-            reader = csv.reader(file)
-            next(reader)
-            rows = list(reader)
-            
-        cursor.executemany("""INSERT INTO trades (date, ticker, qty)
-                                VALUES(?, ?, ?, ?)""", rows)
-
-        conn.commit()
+        df = pd.read_sql_query(f"SELECT * FROM {table_name}", conn)
         conn.close()
-        print(f"Inserted {cursor.rowcount} trades\n")
-        return cursor.rowcount
+        return df
+    
+    def get_prices(self):
+        """
+        Returns a DataFrame of all stock prices for the portfolio
+        """
+        return self.get_table("prices")
 
-def load_prices():
-    """
-    Returns a DataFrame of all stock prices for the portfolio
-    """
-    conn = sqlite3.connect(constants.DB_FILE)
-    df = pd.read_sql_query("SELECT * FROM prices", conn)
-    conn.close()
-    return df
-
-def load_trades():
-    """
-    Returns a DataFrame of trades
-    """
-    conn = sqlite3.connect(constants.DB_FILE)
-    df = pd.read_sql_query("SELECT * FROM trades", conn)
-    conn.close()
-    return df
-
-def scrape_if_missing(trades):
-    """
-    Calls the web scraper to find the remaining stock tickers we are missing from the trades data.
-    """
-    unique_tickers = trades['ticker'].unique()
-    print(type(unique_tickers))
-    current_prices = load_prices()
-    missing_tickers = set(unique_tickers) - set(current_prices['ticker'])
-    remaining_data = web_scraper.load_prices(missing_tickers, start_date, end_date, current_prices)
+    def get_trades(self):
+        """
+        Returns a DataFrame of the trades, read from the db.
+        """
+        return self.get_table("trades")
     
-if __name__ == "__main__":
-    dbm = DBManager()
-    dbm.instantiate_db_tables()
-    dbm.insert_trades(constants.TRADES_FILE)
-    
-    trades = load_trades()
-    prices = scrape_if_missing(trades)
-    
-    insert_prices()
-    generate_prices()
-    
+    def scrape_if_missing(self, trades):
+        """
+        Calls the web scraper to find the remaining stock tickers we are missing from the trades data.
+        """
+        unique_tickers = trades['ticker'].unique()
+        print(type(unique_tickers))
+        current_prices = self.get_prices()
+        # missing_tickers = set(unique_tickers) - set(current_prices['ticker'])
+        start_date, end_date = trades['date'].min(), trades['date'].max()
+        remaining_data = web_scraper.load_prices(unique_tickers, start_date, end_date, current_prices)

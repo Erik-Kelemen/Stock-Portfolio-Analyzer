@@ -1,8 +1,9 @@
 import pandas as pd
 import numpy as np
-import data_loader
-import portfolio_calc
-
+from Accessor import data_loader
+from PortfolioAnalyzer import portfolio_calc
+from PortfolioAnalyzer import risk_analyzer
+import streamlit as st
 
 if __name__ == "__main__":
     prices = data_loader.load_prices();
@@ -16,7 +17,7 @@ if __name__ == "__main__":
     betas = portfolio_engine.betas()
     sharpes = portfolio_engine.sharpes()
 
-    risk_analyzer = analyzer.RiskAnalyzer(prices, trades, PnL)
+    risk_analyzer = risk_analyzer.RiskAnalyzer(prices, trades, PnL)
     variance = risk_analyzer.calculate_variance()
     frontier = risk_analyzer.efficient_frontier()
 

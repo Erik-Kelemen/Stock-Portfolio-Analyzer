@@ -4,26 +4,28 @@ import yfinance as yf
 import random
 import pandas as pd
 import os
-
+import constants
 canadian_stocks = ["RY.TO", "SHOP.TO", "BNS.TO", "TD.TO", "ENB.TO", "CAD=X"]
 
-def load_SNP500_tickers():
-    filepath = 'S&P_500_tickers.txt'
+def load_prices(tickers, start_date, end_date, prices):
+    """
+    Loads all data for tickers between start_date and end_date inclusive that are not already part of prices.
+    """
+    date_range = pd.date_range(start=start_date, end=end_date, freq='D')
+    all_pairs = pd.MultiIndex.from_product([date_range, tickers], names=['date', 'ticker'])
 
-    if os.path.exists(filepath):
-        print(f"Tickers file found, loading from {filepath}")
-        with open(filepath, 'r') as file:
-            all_tickers = [line.strip() for line in file]
-    else:
-        print(f"No tickers file found, web scraping and writing to {filepath}.")
-        URL = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
-        tickers = pd.read_html(URL)[0]
-        all_tickers = tickers.Symbol.to_list()
-        with open(filepath, 'w') as file:
-            file.writelines('\n'.join(all_tickers))
-    return all_tickers
+    # Get the date-ticker pairs that are missing from the DataFrame
+    existing_pairs = pd.MultiIndex.from_frame(df[['date', 'ticker']])
+    missing_pairs = all_pairs.difference(existing_pairs)
 
-def load_prices(target_file, selected_tickers, start_date, end_date, time_intervals):
+    # Convert the missing pairs back to DataFrame format
+    missing_df = pd.DataFrame(missing_pairs, columns=['date', 'ticker'])
+
+    # Print the missing pairs
+    print("Missing Date-Ticker Pairs:")
+    print(missing_df)
+
+
     with open(target_file, mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(['date', 'time', 'ticker', 'price', 'currency'])
@@ -46,7 +48,7 @@ def load_prices(target_file, selected_tickers, start_date, end_date, time_interv
 
             current_date += datetime.timedelta(days=1)
 
-def generate_prices(target_file = '../data/gen_prices.csv'):
+def generate_prices():
     all_tickers = load_SNP500_tickers()
     num_tickers = 30
     selected_tickers = random.sample(all_tickers, num_tickers)
@@ -59,3 +61,19 @@ def generate_prices(target_file = '../data/gen_prices.csv'):
                     '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00']
 
     load_prices(target_file, selected_tickers, start_date, end_date, time_intervals)
+
+def load_SNP500_tickers():
+    filepath = 'S&P_500_tickers.txt'
+
+    if os.path.exists(filepath):
+        print(f"Tickers file found, loading from {filepath}")
+        with open(filepath, 'r') as file:
+            all_tickers = [line.strip() for line in file]
+    else:
+        print(f"No tickers file found, web scraping and writing to {filepath}.")
+        URL = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
+        tickers = pd.read_html(URL)[0]
+        all_tickers = tickers.Symbol.to_list()
+        with open(filepath, 'w') as file:
+            file.writelines('\n'.join(all_tickers))
+    return all_tickers
