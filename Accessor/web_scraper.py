@@ -1,76 +1,69 @@
 import csv
 import datetime
+from datetime import datetime
 import yfinance as yf
 import random
 import pandas as pd
 import os
 import constants
+import streamlit as st
+
 canadian_stocks = ["RY.TO", "SHOP.TO", "BNS.TO", "TD.TO", "ENB.TO", "CAD=X"]
+market_holidays = set([datetime(2022, 1, 17), datetime(2022,2,21), datetime(2022,4,15), 
+                            datetime(2022, 5, 30), datetime(2022, 6, 20), datetime(2022, 7, 4), 
+                            datetime(2022,9,5), datetime(2022, 11, 24), datetime(2022, 11, 25), 
+                            datetime(2022, 12, 26)])
 
 def load_prices(tickers, start_date, end_date, prices):
     """
-    Loads all data for tickers between start_date and end_date inclusive that are not already part of prices.
+    Loads all data for tickers between start_date and end_date inclusive that are not in prices.
     """
+    #TODO: maybe we want to download all data for the tickers in my time range first, and just & it with my values?
+    #tho this puts more pressure on the Exchange API...
+    st.write(f"Fetching tickers for these tickers between {start_date} and {end_date}: ")
+    st.write(tickers)
     date_range = pd.date_range(start=start_date, end=end_date, freq='D')
-    all_pairs = pd.MultiIndex.from_product([date_range, tickers], names=['date', 'ticker'])
-
-    # Get the date-ticker pairs that are missing from the DataFrame
-    existing_pairs = pd.MultiIndex.from_frame(df[['date', 'ticker']])
-    missing_pairs = all_pairs.difference(existing_pairs)
-
-    # Convert the missing pairs back to DataFrame format
-    missing_df = pd.DataFrame(missing_pairs, columns=['date', 'ticker'])
-
-    # Print the missing pairs
-    print("Missing Date-Ticker Pairs:")
-    print(missing_df)
-
-
-    with open(target_file, mode='w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(['date', 'time', 'ticker', 'price', 'currency'])
-        #TODO: skip weekends to reduce load?
-        current_date = start_date
-        while current_date <= end_date:
-            for interval in time_intervals:
-                for ticker in selected_tickers:
-                    dt = datetime.datetime.combine(current_date.date(), datetime.datetime.strptime(interval, '%H:%M').time())
-                    try:
-                        data = yf.download(ticker, start=dt, end=dt + datetime.timedelta(minutes=30), interval='1d')
-                    except Exception as e:
-                        print(f"No data available for {ticker} on {current_date.strftime('%Y-%m-%d')} - Skipping.")
-                        continue
-
-                    if not data.empty:
-                        price = round(data['Close'][0], 2)
-                        currency = 'USD' if ticker not in canadian_stocks else 'CAD'
-                        writer.writerow([current_date.strftime('%Y-%m-%d'), interval, ticker, price, currency])
-
-            current_date += datetime.timedelta(days=1)
-
-def generate_prices():
-    all_tickers = load_SNP500_tickers()
-    num_tickers = 30
-    selected_tickers = random.sample(all_tickers, num_tickers)
-    selected_tickers.extend(canadian_stocks)
     
-    # Establish date range 
-    start_date = datetime.datetime(2023, 6, 1)
-    end_date = datetime.datetime(2023, 7, 8)
-    time_intervals = ['09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30',
-                    '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00']
+    all_pairs = pd.MultiIndex.from_product([date_range, tickers], names=['date', 'ticker'])
+    existing_pairs = pd.MultiIndex.from_frame(prices[['date', 'ticker']])    
+    missing_pairs = all_pairs.difference(existing_pairs)
+    st.write(missing_pairs)
+    rows = []
 
-    load_prices(target_file, selected_tickers, start_date, end_date, time_intervals)
+    def is_trading_day(date):
+        return date.weekday() < 5 and date not in market_holidays
+    
+    for current_date, ticker in missing_pairs:
+        if is_trading_day(current_date): continue
+        dt = datetime.combine(current_date.date(), datetime.strptime("09:00:00", '%H:%M:%S').time())
+        try:
+            st.write(f"Loading {ticker} {dt}")
+            data = yf.download(ticker, start=dt, end=dt + datetime.timedelta(minutes=1), interval='1d')
+            st.write(data)
+        except Exception as e:
+            print(f"No data available for {ticker} on {current_date.strftime('%Y-%m-%d')} - Skipping.")
+            continue
+
+        if not data.empty:
+            price = round(data['Close'][0], 2)
+            currency = 'USD' if ticker not in canadian_stocks else 'CAD'
+            rows.append((current_date, ticker, price, currency))
+    st.write("Scraped the following rows using yfinance:")
+    st.write(rows)
+    return rows
 
 def load_SNP500_tickers():
+    """
+    Optional utility to scrape for the list of S&P 500 companies.
+    """
     filepath = 'S&P_500_tickers.txt'
 
     if os.path.exists(filepath):
-        print(f"Tickers file found, loading from {filepath}")
+        st.write(f"Tickers file found, loading from {filepath}")
         with open(filepath, 'r') as file:
             all_tickers = [line.strip() for line in file]
     else:
-        print(f"No tickers file found, web scraping and writing to {filepath}.")
+        st.write(f"No tickers file found, web scraping and writing to {filepath}.")
         URL = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
         tickers = pd.read_html(URL)[0]
         all_tickers = tickers.Symbol.to_list()

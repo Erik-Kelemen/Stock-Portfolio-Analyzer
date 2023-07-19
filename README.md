@@ -49,10 +49,11 @@ A streamlit dashboard to serve as the interface with users. Visualizes the data 
 ## How to Use
 Follow these steps to use the Stock Portfolio Analyzer:
 
-1. Use your favorite package manager (I use pip) to install the popular yfinance, Pandas, NumPy, Requests, and BeautifulSoup libraries. 
-2. Upload your trading portfolio as a CSV file with the columns date, ticker, quantity, to the /data/ directory. If you do not have one, you can randomly generate one with the DataSource/dummy_trades.py script.
-3. Execute the Jupyter Dashboard in interface/dash.ipynb.
-4. Feel free to customize and integrate the Stock Portfolio Analyzer into your own projects.
+1. Clone this git repository locally and launch a python virtual environment (https://learn.microsoft.com/en-us/windows/python/web-frameworks).
+2. Use your favorite package manager (I use pip) to install the popular yfinance, Pandas, NumPy, Requests, and BeautifulSoup libraries. 
+3. Upload your trading portfolio as a CSV file with the columns date, ticker, quantity, to the /data/ directory. If you do not have one, you can randomly generate one with the DataSource/dummy_trades.py script.
+4. Execute the Jupyter Dashboard in interface/dash.ipynb.
+5. Feel free to customize and integrate the Stock Portfolio Analyzer into your own projects.
 
 ## Future Work
 This project can be extended to improve robustness, flexibility, accuracy, reliability, and usefulness. Here are just some of my ideas:
@@ -60,7 +61,6 @@ This project can be extended to improve robustness, flexibility, accuracy, relia
 2. Transaction Costs: This analyzer overlooks transaction costs such as brokerage fees, commissions, exchange fees, and bid-ask spreads. These costs can eat into profits and impact the overall performance of a trading strategy or portfolio. Consider introducing a configurable "transaction fee" constant which deducts from profits and assets linearly with number of trades.
 3. Order Types and Timing: This analyzer only accepts portfolios of market orders. However, in practice, traders use various types of orders, such as limit orders, stop-loss orders, trailing stops, or iceberg orders. The timing of order placement and cancellation, as well as the order routing mechanism, can also influence trading outcomes.
 4. Support for more diverse portfolios: To improve the robustness and accuracy of the backtester should be diversifying the stock portfolio and adding more foreign currencies from other exchanges. This may include adding additional web scrapers and sourcing to the DataManager. It also reduced dependency on the yfinance API.
-
 
 ## Closing Thoughts
 Please note that this README provides a brief overview of the system. For more detailed instructions and examples, refer to the comments within the source code or reach out to me at kelemen.erik@gmail.com.
