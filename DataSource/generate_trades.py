@@ -16,13 +16,12 @@ def generate_dummy_trades():
     if os.path.exists(constants.TRADES_FILE):
         st.write(f"{constants.TRADES_FILE} found! Not overwriting.")
         return
-    st.write(f"No file found at {constants.TRADES_FILE}, proceeding to generate one.")
     # Define the date range
     start_date = datetime(2022, 1, 1)
     end_date = datetime(2022, 12, 31)
 
     # Define the list of tickers
-    tickers = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'FB', "RY.TO", "SHOP.TO", "BNS.TO", "TD.TO", "ENB.TO"]
+    tickers = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'META', "RY.TO", "SHOP.TO", "BNS.TO", "TD.TO", "ENB.TO"]
     # Market holidays of 2022
     market_holidays = set([datetime(2022, 1, 17), datetime(2022,2,21), datetime(2022,4,15), 
                             datetime(2022, 5, 30), datetime(2022, 6, 20), datetime(2022, 7, 4), 
