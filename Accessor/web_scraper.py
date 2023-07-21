@@ -7,20 +7,24 @@ import pandas as pd
 import os
 import constants
 import streamlit as st
-import scipy
 
 canadian_stocks = ["RY.TO", "SHOP.TO", "BNS.TO", "TD.TO", "ENB.TO", "CAD=X"]
 
+
 def load_prices(tickers, start_date, end_date):
     """
-    Loads all data for tickers between start_date and end_date inclusive that are not in prices.
+    Loads all data for tickers between start_date and end_date inclusive.
+    Also loads the 3-month treasury bill (^IRX) to serve as the risk free rate.
     """
+    if "^IRX" not in tickers: tickers.append("^IRX")
+    if any([ticker.endswith(".TO") for ticker in tickers]) and "CAD=X" not in tickers:
+        tickers.append("CAD=X")
     st.write(f"Fetching tickers for these tickers between {start_date} and {end_date}: ")
     st.write(tickers)
     df = yf.download(tickers, start_date, end_date)['Adj Close']
     st.write("Loaded from yfinance:")
     st.write(df)
-
+    
     st.write("Performing linear interpolation on the nulls:")
     for ticker in tickers:
         df[ticker] = df[ticker].interpolate()

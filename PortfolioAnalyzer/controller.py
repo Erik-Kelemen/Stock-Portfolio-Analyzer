@@ -1,32 +1,51 @@
 import pandas as pd
 import numpy as np
-from Accessor import data_loader
-from PortfolioAnalyzer import portfolio_calc
-from PortfolioAnalyzer import risk_analyzer
+from .Analyzers import nav_analyzer
+from .Analyzers import pnl_analyzer
+from .Analyzers import alphas_analyzer
+from .Analyzers import betas_analyzer
+from .Analyzers import sharpes_analyzer
+from .Analyzers import variance_analyzer
+from .Analyzers import frontier_analyzer
+
 import streamlit as st
 
-if __name__ == "__main__":
-    prices = data_loader.load_prices();
-    trades = data_loader.load_trades();
-    print(prices.head())
-    print(trades.head())
-    portfolio_engine = portfolio_calc.PortfolioCalculator(prices, trades)
-    NAV = portfolio_engine.nav()
-    PnL = portfolio_engine.profits_and_losses()
-    alphas = portfolio_engine.alphas()
-    betas = portfolio_engine.betas()
-    sharpes = portfolio_engine.sharpes()
-
-    risk_analyzer = risk_analyzer.RiskAnalyzer(prices, trades, PnL)
-    variance = risk_analyzer.calculate_variance()
-    frontier = risk_analyzer.efficient_frontier()
-
-    ui = interface.UI()
-    data = {'NAV': NAV,
-            'PnL': PnL,
-            'alphas': alphas,
-            'betas': betas,
-            'sharpes': sharpes,
-            'variance': variance,
-            'frontier': frontier}
-    ui.show(data)
+class Controller:
+    def __init__(self, trades, prices, analyzers = None):
+        self.trades = trades
+        self.prices = prices
+        if not analyzers:
+            analyzers = [nav_analyzer.NAV_Analyzer(trades, prices),
+                         pnl_analyzer.PNL_Analyzer(trades, prices),
+                         alphas_analyzer.Alphas_Analyzer(trades, prices),
+                         betas_analyzer.Betas_Analyzer(trades, prices),
+                         sharpes_analyzer.Sharpes_Analyzer(trades, prices),
+                         variance_analyzer.Variance_Analyzer(trades, prices),
+                         frontier_analyzer.Frontier_Analyzer(trades, prices)]
+        self.analyzers = analyzers
+        
+        if len(self.prices['currency'].unique()) > 1:
+            self.standardize() #convert all prices to USD
+            
+    def standardize(self):
+        """
+        Standardize all stock prices to USD using the appropriate =X conversion rate in prices.
+        """
+        st.write("Standarding all stock prices to USD:")
+        date_to_rate = self.prices[(self.prices['ticker'] == 'CAD=X')].set_index(['date'])['price']
+        def CAD_to_USD(date, currency, price):
+            """
+            Utility function for converting USD to CAD for a specific date and time.
+            """
+            return price if currency == 'USD' else price * (1 / date_to_rate[date])
+        self.prices['price_USD'] = self.prices.apply(lambda row: 
+                                        CAD_to_USD(row['date'], row['currency'], row['price']), 
+                                        axis=1)
+        return self.prices
+    def analyze(self):
+        self.standardize()
+        st.dataframe(self.prices)
+        st.write("Welcome to the analyzer! All currencies are converted to USD.")
+        # for analyzer in self.analyzers:
+        #     analyzer.analyze()
+        #     analyzer.graph()

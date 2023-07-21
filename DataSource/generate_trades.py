@@ -7,9 +7,10 @@ import pathlib
 import os
 import streamlit as st
 """
-A script for generating a randomized, valid trades.csv file for use in the analyzer.
-A valid trades.csv is one that never tries to sell more shares of a ticker than it holds.
+A script for generating a randomized trades.csv file for use in the analyzer.
 Will not overwrite an existing one if there is already a trades.csv in data/.
+Negative quantities represent sales, or, in the case that the net qty is negative,
+shorted trades.
 """
 
 def generate_dummy_trades():
@@ -43,10 +44,8 @@ def generate_dummy_trades():
             for ticker in tickers:
                 if trade_today():
                     qty = random.choice([-1, 1]) * random.randint(1, 10) * 10  # Randomly generate positive/negative multiples of 10
-                    qty = max(qty, -holdings[ticker])
-                    if qty != 0:
-                        holdings[ticker] += qty
-                        trades_data.append([current_date.strftime('%Y-%m-%d'), ticker, qty])
+                    holdings[ticker] += qty
+                    trades_data.append([current_date.strftime('%Y-%m-%d'), ticker, qty])
         current_date += timedelta(days=1)
 
     # Write trades data to CSV file

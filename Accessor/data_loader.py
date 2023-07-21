@@ -17,6 +17,7 @@ class DBManager:
         """
         self.trades = None
         self.prices = None
+        self.start_date, self.end_date = None, None
         conn = sqlite3.connect(constants.DB_FILE)
         
         conn.execute("""
@@ -52,17 +53,18 @@ class DBManager:
         return self.trades
     
     def get_trades(self):
+        self.start_date, self.end_date = self.trades['date'].min(), self.trades['date'].max()
         return self.trades
     
     def scrape_prices(self):
         """
-        Load all missing prices using the web scraper.
-        Returns the number of rows inserted.
+        Load all missing prices using the web scraper into the db.
         """
+        # web_scraper.load_T_Bill_rate(self.start_date, self.end_date)
         st.write("Loading missing prices...")
         unique_tickers = self.trades['ticker'].unique()
-        start_date, end_date = self.trades['date'].min(), self.trades['date'].max()
-        df = web_scraper.load_prices(unique_tickers.tolist(), start_date, end_date)
+        
+        df = web_scraper.load_prices(unique_tickers.tolist(), self.start_date, self.end_date)
         conn = sqlite3.connect(constants.DB_FILE)
         cursor = conn.cursor()
         df.reset_index(inplace=True)
@@ -87,9 +89,6 @@ class DBManager:
                 pass
         conn.commit()
         conn.close()
-        ct = cursor.rowcount
-        st.write(f"{max(0,cursor.rowcount)} records persisted to db.")
-        return ct
     
     def graph_trades(self):
         plt.style.use('dark_background')
