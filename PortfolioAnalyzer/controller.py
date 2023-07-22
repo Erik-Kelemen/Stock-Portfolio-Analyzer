@@ -30,6 +30,7 @@ class Controller:
     def standardize(self):
         """
         Standardize all stock prices to USD using the appropriate =X conversion rate in prices.
+        Will drop the conversion rates from the prices table to eliminate pollution
         """
         st.write("Standarding all stock prices to USD:")
         date_to_rate = self.prices[(self.prices['ticker'] == 'CAD=X')].set_index(['date'])['price']
@@ -43,9 +44,8 @@ class Controller:
                                         axis=1)
         return self.prices
     def analyze(self):
-        self.standardize()
         st.dataframe(self.prices)
         st.write("Welcome to the analyzer! All currencies are converted to USD.")
-        # for analyzer in self.analyzers:
-        #     analyzer.analyze()
-        #     analyzer.graph()
+        for analyzer in self.analyzers:
+            analyzer.analyze()
+            analyzer.graph()
