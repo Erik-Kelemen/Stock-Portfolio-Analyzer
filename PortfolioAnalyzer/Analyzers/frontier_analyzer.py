@@ -2,14 +2,14 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from ..portfolio_analyzer import PortfolioAnalyzer
+from ..analyzer import Analyzer
 
-class Frontier_Analyzer(PortfolioAnalyzer):
+class Frontier_Analyzer(Analyzer):
     def analyze(self):
-        st.write("6. Efficient Frontier Analyzer")
-        
+        st.write("4. Efficient Frontier Analyzer")
         pass
-    def graph(self):
+
+    def display(self):
         st.write("Efficient Frontier:")
         pass
 
