@@ -3,14 +3,15 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.dates import MonthLocator, DateFormatter
-from ..portfolio_analyzer import PortfolioAnalyzer
+from ..analyzer import Analyzer
 from datetime import datetime
 
-class NAV_Analyzer(PortfolioAnalyzer):
+class NAV_Analyzer(Analyzer):
     def __init__(self, trades, prices):
         super().__init__(trades, prices)
         self.anlyzd = False
         self.analyze()
+
     def analyze(self):
         """
         Computes the Net Asset Value (NAV) per day for the date range of trades.
@@ -24,7 +25,6 @@ class NAV_Analyzer(PortfolioAnalyzer):
             self.NAV_by_ticker = self.NAV.sum(axis=0)
             self.NAV_by_date = self.NAV.sum(axis=1)
             self.NAV_by_date.index = pd.to_datetime(self.NAV_by_date.index)
-            self.NAV_daily_returns = self.NAV_by_date.pct_change()
             # self.print()
     
     def display(self):
