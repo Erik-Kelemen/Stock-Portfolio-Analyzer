@@ -2,10 +2,10 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from ..portfolio_analyzer import PortfolioAnalyzer
+from ..analyzer import Analyzer
 from matplotlib.dates import MonthLocator, DateFormatter
 
-class PNL_Analyzer(PortfolioAnalyzer):
+class PNL_Analyzer(Analyzer):
     def __init__(self, trades, prices):
         super().__init__(trades, prices)
         self.anlyzd = False
@@ -46,9 +46,8 @@ class PNL_Analyzer(PortfolioAnalyzer):
 
             self.unrealized_pnl['date'] = pd.to_datetime(self.unrealized_pnl['date'])
             self.unrealized_pnl = self.unrealized_pnl.set_index('date')['unrealized_pnl']
-
-            self.daily_returns = self.tot_pnl.pct_change()
-            # self.print()
+            self.print()
+            st.write(self.tot_pnl)
 
     def display(self):
         st.markdown("### 2. Profits & Losses (PnL)")
@@ -84,7 +83,7 @@ class PNL_Analyzer(PortfolioAnalyzer):
         st.pyplot(plt)
 
     def print(self):
-        super().print()
+        #super().print()
         st.write(self.portfolio)
         st.write(self.tot_pnl)
         st.write(self.realized_pnl)
