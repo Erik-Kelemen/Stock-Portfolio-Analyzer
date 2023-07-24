@@ -2,10 +2,7 @@ import pandas as pd
 import numpy as np
 from .Analyzers import nav_analyzer
 from .Analyzers import pnl_analyzer
-from .Analyzers import alphas_analyzer
-from .Analyzers import betas_analyzer
-from .Analyzers import sharpes_analyzer
-from .Analyzers import volatility_analyzer
+from .Analyzers import risk_analyzer
 from .Analyzers import frontier_analyzer
 
 import streamlit as st
@@ -21,17 +18,11 @@ class Controller:
         if not analyzers:
             nav_anlyzr = nav_analyzer.NAV_Analyzer(trades, prices)
             pnl_anlyzr = pnl_analyzer.PNL_Analyzer(trades, prices)
-            volatility_anlyzr = volatility_analyzer.Volatility_Analyzer(trades, prices, nav_anlyzr, pnl_anlyzr)
-            alphas_anlyzr = alphas_analyzer.Alphas_Analyzer(trades, prices)
-            betas_anlyzr = betas_analyzer.Betas_Analyzer(trades, prices)
-            sharpes_anlyzr = sharpes_analyzer.Sharpes_Analyzer(trades, prices)
+            risk_anlyzr = risk_analyzer.Risk_Analyzer(trades, prices, pnl_anlyzr)
             frontier_anlyzr = frontier_analyzer.Frontier_Analyzer(trades, prices)
             analyzers = [nav_anlyzr,
                          pnl_anlyzr,
-                         volatility_anlyzr,
-                         alphas_anlyzr,
-                         betas_anlyzr,
-                         sharpes_anlyzr,
+                         risk_anlyzr,
                          frontier_anlyzr]
         self.analyzers = analyzers
         
