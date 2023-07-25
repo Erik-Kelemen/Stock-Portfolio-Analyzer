@@ -100,7 +100,7 @@ class DBManager:
         color_map = {ticker: plt.cm.tab10(i) for i, ticker in enumerate(unique_tickers)}
 
         # Plot the graph
-        plt.figure(figsize=(10, 6))
+        plt.figure(figsize=(12, 7))
         for ticker, group in df.groupby('ticker'):
             plt.scatter(group['date'], group['qty'], color=color_map[ticker], label=ticker, s=10)
 
@@ -118,19 +118,17 @@ class DBManager:
         
         # ticker_colors = {ticker: f'C{i}' for i, ticker in enumerate(self.prices['ticker'].unique())}
         plt.style.use('dark_background')
-        currency_shapes = {'USD': 'o', 'CAD': 's'}
-        color_map = {ticker: plt.cm.tab10(i) for i, ticker in enumerate(self.prices['ticker'])}
-
+        stocks = self.prices.loc[~self.prices['ticker'].isin(["^GSPC", "CAD=X", "^TNX"])]
         cmap = plt.get_cmap('viridis')
-        norm = plt.Normalize(vmin=self.prices['price'].min(), vmax=self.prices['price'].max())
+        norm = plt.Normalize(vmin=stocks['price'].min(), vmax=stocks['price'].max())
 
         # Create the scatter plot using matplotlib
-        plt.figure(figsize=(10, 6))
-        for ticker, group in self.prices.groupby('ticker'):
+        plt.figure(figsize=(12, 7))
+        for ticker, group in stocks.groupby('ticker'):
+            if ticker == '^GSPC': continue
             colors = cmap(norm(group['price']))
-            plt.scatter(group['date'], group['price'], label=ticker, s=10, c=colors)
+            plt.scatter(pd.to_datetime(group['date']), group['price'], label=ticker, s=10, c=colors)
 
-        
         # Format the plot
         plt.xlabel('Date')
         plt.ylabel('Price')
@@ -138,8 +136,7 @@ class DBManager:
         plt.legend()
         
         ax = plt.gca()
-        # ax.locator_params(axis='x', nbins=2)
-        date_format = mdates.DateFormatter('%Y-%m-%d')
+        date_format = mdates.DateFormatter('%b %Y')
         ax.xaxis.set_major_formatter(date_format)
 
         # Set the x-axis locator to show 12 evenly spaced tick marks
@@ -147,3 +144,5 @@ class DBManager:
 
         plt.tight_layout()
         st.pyplot(plt)
+
+        

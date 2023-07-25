@@ -15,8 +15,10 @@ def load_prices(tickers, start_date, end_date):
     """
     Loads all data for tickers between start_date and end_date inclusive.
     Also loads the 3-month treasury bill (^IRX) to serve as the risk free rate.
+    And lastly the S&P 500.
     """
-    if "^IRX" not in tickers: tickers.append("^IRX")
+    always_load = ["^TNX", "^GSPC"]
+    tickers.extend([ticker for ticker in always_load if ticker not in tickers])
     if any([ticker.endswith(".TO") for ticker in tickers]) and "CAD=X" not in tickers:
         tickers.append("CAD=X")
     st.write(f"Fetching tickers for these tickers between {start_date} and {end_date}: ")
