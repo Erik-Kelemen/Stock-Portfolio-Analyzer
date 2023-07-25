@@ -14,40 +14,38 @@ class PNL_Analyzer(Analyzer):
     def analyze(self):
         if(not self.anlyzd):
             self.anlyzd = True
+            self.interpolate_trades()
 
-            # Step 1: Merge prices and trades dataframes
+            # Merge prices and trades dataframes
             self.portfolio = pd.merge(self.prices, self.trades, on=['date', 'ticker'])
-            
-            # Step 2: Calculate the net quantity of each ticker at each date
+            # Calculate the net quantity of each ticker at each date
             self.portfolio['net_qty'] = self.portfolio.groupby(['ticker'])['qty'].cumsum()
 
-            # Step 3: Calculate the total value of each trade for each ticker/date
+            # Calculate the total value of each trade for each ticker/date
             self.portfolio['trade_value'] = self.portfolio['price_USD'] * self.portfolio['qty']
 
-            # Step 4: Calculate the realized PnL
+            # Calculate the realized PnL
             self.portfolio['realized_pnl'] = -self.portfolio.groupby(['ticker'])['trade_value'].cumsum().fillna(0)
 
-            # Step 5: Calculate the unrealized PnL for open positions
+            # Calculate the unrealized PnL for open positions
             self.portfolio['unrealized_pnl'] = self.portfolio['net_qty'] * self.portfolio['price_USD']
 
-            # Step 6: Combine the realized and unrealized PnL to get the total PnL
+            # Combine the realized and unrealized PnL to get the total PnL
             self.portfolio['total_pnl'] = self.portfolio['realized_pnl'] + self.portfolio['unrealized_pnl']
 
-            self.tot_pnl = self.portfolio.groupby('date')['total_pnl'].sum().reset_index()
-
+            self.total_pnl = self.portfolio.groupby('date')['total_pnl'].sum().reset_index()
             self.realized_pnl = self.portfolio.groupby('date')['realized_pnl'].sum().reset_index()
             self.unrealized_pnl = self.portfolio.groupby('date')['unrealized_pnl'].sum().reset_index()
-            
-            self.tot_pnl['date'] = pd.to_datetime(self.tot_pnl['date'])
-            self.tot_pnl = self.tot_pnl.set_index('date')['total_pnl']
+
+            self.total_pnl['date'] = pd.to_datetime(self.total_pnl['date'])
+            self.total_pnl = self.total_pnl.set_index('date')['total_pnl']
 
             self.realized_pnl['date'] = pd.to_datetime(self.realized_pnl['date'])
             self.realized_pnl = self.realized_pnl.set_index('date')['realized_pnl']
 
             self.unrealized_pnl['date'] = pd.to_datetime(self.unrealized_pnl['date'])
             self.unrealized_pnl = self.unrealized_pnl.set_index('date')['unrealized_pnl']
-            self.print()
-            st.write(self.tot_pnl)
+
 
     def display(self):
         st.markdown("### 2. Profits & Losses (PnL)")
@@ -56,7 +54,7 @@ class PNL_Analyzer(Analyzer):
                 PnL into realized and unrealized profits & losses.
                 """)
         plt.figure(figsize=(12, 7))
-        plt.plot(self.tot_pnl.index, self.tot_pnl.values, marker='o', linestyle='-', markersize=5)
+        plt.plot(self.total_pnl.index, self.total_pnl.values, marker='o', linestyle='-', markersize=5)
         
         months_locator = MonthLocator(interval=1)
         months_format = DateFormatter('%b %Y')
