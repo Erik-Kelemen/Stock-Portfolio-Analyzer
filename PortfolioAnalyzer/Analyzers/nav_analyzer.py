@@ -15,16 +15,26 @@ class NAV_Analyzer(Analyzer):
     def analyze(self):
         """
         Computes the Net Asset Value (NAV) per day for the date range of trades.
-        Should return a Series with 1 value for each time bucket.
+        Also computes the Cash-Adjusted Net Asset Value.
         """
+        #we need a column of cash_in, cash_out
+        # and have final nav = nav - (cash_in - cash_out)
         if(not self.anlyzd):
             self.anlyzd = True
             self.preprocess()
-            self.prefix_sum_trades()
-            self.NAV = self.prices * self.trades
+            self.holdings = self.trades.cumsum(axis = 0)
+            st.write(self.prices)
+            st.write(self.trades)
+            self.NAV = self.prices * self.holdings
             self.NAV_by_ticker = self.NAV.sum(axis=0)
             self.NAV_by_date = self.NAV.sum(axis=1)
             self.NAV_by_date.index = pd.to_datetime(self.NAV_by_date.index)
+            
+            self.Cash_Flows = (self.prices * self.trades).sum(axis=1)
+            self.Cash_Flows.index = pd.to_datetime(self.Cash_Flows.index)
+            self.Cash_Holdings = self.Cash_Flows.cumsum()
+            self.Cash_Adjusted_NAV = self.NAV_by_date - self.Cash_Holdings
+            st.write(self.Cash_Adjusted_NAV)
             # self.print()
     
     def display(self):
