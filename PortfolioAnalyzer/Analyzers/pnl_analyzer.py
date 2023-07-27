@@ -46,7 +46,6 @@ class PNL_Analyzer(Analyzer):
             self.unrealized_pnl['date'] = pd.to_datetime(self.unrealized_pnl['date'])
             self.unrealized_pnl = self.unrealized_pnl.set_index('date')['unrealized_pnl']
 
-
     def display(self):
         st.markdown("### 2. Profits & Losses (PnL)")
         st.write("""Profits & Losses reflect the difference between total revenue generated (profits) and total 
