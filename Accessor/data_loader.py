@@ -112,27 +112,37 @@ class DBManager:
 
         # Show the legend (ticker key)
         st.pyplot(plt)
-        # plt.show()
+        plt.clf()
+        for ticker, group in df.groupby('ticker'):
+            plt.plot(group['date'], group['qty'], color=color_map[ticker], label=ticker)
+
+        # Add labels and title
+        plt.xlabel('Date')
+        plt.ylabel('Quantity')
+        plt.title('Trades by Date (Color-coded by Ticker)')
+        plt.legend(loc = 'upper right')
+        
+        st.pyplot(plt)
     
     def graph_prices(self):
         
-        # ticker_colors = {ticker: f'C{i}' for i, ticker in enumerate(self.prices['ticker'].unique())}
-        plt.style.use('dark_background')
+        ticker_colors = {ticker: f'C{i}' for i, ticker in enumerate(self.prices['ticker'].unique())}
+        num_unique_tickers = len(ticker_colors)
+        
         stocks = self.prices.loc[~self.prices['ticker'].isin(["^GSPC", "CAD=X", "^TNX"])]
-        cmap = plt.get_cmap('viridis')
-        norm = plt.Normalize(vmin=stocks['price'].min(), vmax=stocks['price'].max())
-
-        # Create the scatter plot using matplotlib
+        
         plt.figure(figsize=(12, 7))
+        i = 0
         for ticker, group in stocks.groupby('ticker'):
             if ticker == '^GSPC': continue
-            colors = cmap(norm(group['price']))
-            plt.scatter(pd.to_datetime(group['date']), group['price'], label=ticker, s=10, c=colors)
+            color = plt.cm.tab10(i % num_unique_tickers)
+            plt.plot(pd.to_datetime(group['date']), group['price'], label=ticker, c=color)
+            i += 1
 
         # Format the plot
         plt.xlabel('Date')
         plt.ylabel('Price')
-        plt.title('Stock Prices by Ticker')
+        plt.title('Stock Prices Across Time')
         plt.legend()
         
         ax = plt.gca()

@@ -18,7 +18,7 @@ class Controller:
         if not analyzers:
             nav_anlyzr = nav_analyzer.NAV_Analyzer(trades, prices)
             pnl_anlyzr = pnl_analyzer.PNL_Analyzer(trades, prices)
-            risk_anlyzr = risk_analyzer.Risk_Analyzer(trades, prices, pnl_anlyzr)
+            risk_anlyzr = risk_analyzer.Risk_Analyzer(trades, prices, nav_anlyzr)
             frontier_anlyzr = frontier_analyzer.Frontier_Analyzer(trades, prices)
             analyzers = [nav_anlyzr,
                          pnl_anlyzr,
