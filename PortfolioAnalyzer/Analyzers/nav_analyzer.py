@@ -9,8 +9,6 @@ from datetime import datetime
 class NAV_Analyzer(Analyzer):
     def __init__(self, trades, prices):
         super().__init__(trades, prices)
-        # self.anlyzd = False
-        # self.analyze()
 
     def analyze(self):
         """
