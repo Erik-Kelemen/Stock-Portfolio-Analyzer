@@ -33,10 +33,18 @@ You can replace this with your own web scraper to procure the required data.
 
 ### 3. PortfolioAnalyzer:
 #### controller.py
-Manages the communication layer between the prices.csv & trades.csv files with the trading_strategy class. Parses and loads the prices.csv file into a pandas dataframe to pass into the TradingStrategy. Filters for a specified lookback period (default 10 days) of the pool of stocks and delivers it to the system. 
+Manages the communication layer between the prices.csv & trades.csv files with the various analyzers. 
 
+#### analyzer.py
+Base class supporting different preprocessing, reformatting, interpolation, and analytical functions, and skeleton for analyze() and display() to be overridden by subclasses.
 #### portfolio_calc.py
 Computes portfolio P&L, Net Asset Value, volatility, alpha, beta, and Sharpe ratio over time. It leverages matrix multiplication and numpy broadcasting to optimize calculations, taking into account currency conversions.
+
+#### nav_analyzer.py
+
+
+#### pnl_analyzer.py
+
 
 #### risk_analyzer.py
 Computes portfolio Value at Risk (VaR) and efficient frontier analysis (EFA) over time. 
