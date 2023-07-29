@@ -1,10 +1,7 @@
 import pandas as pd
 import sqlite3
-import csv
 import constants
-import datetime
-from datetime import datetime
-from Accessor import web_scraper
+from DataManager import web_scraper
 import streamlit as st
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates

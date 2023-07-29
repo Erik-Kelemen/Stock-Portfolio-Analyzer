@@ -1,11 +1,7 @@
-import csv
-import datetime
 from datetime import datetime
 import yfinance as yf
-import random
 import pandas as pd
 import os
-import constants
 import streamlit as st
 
 canadian_stocks = ["RY.TO", "SHOP.TO", "BNS.TO", "TD.TO", "ENB.TO", "CAD=X"]

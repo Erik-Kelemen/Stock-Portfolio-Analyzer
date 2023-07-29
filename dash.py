@@ -1,15 +1,13 @@
 import streamlit as st
 import sys
 import os
-import pathlib
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
 import constants
 from DataSource import generate_trades
-from Accessor import data_loader
-import PortfolioAnalyzer
+from DataManager import data_loader
 from PortfolioAnalyzer import controller
 if(os.getcwd() not in sys.path):
     sys.path.append(os.getcwd())
