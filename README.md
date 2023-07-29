@@ -9,7 +9,7 @@ The analyzer also empowers users with advanced risk management tools, including 
 All this data is presented on an intuitive, easy to use Jupyter dashboard for users to view an in-depth analysis of their portfolio.
 
 ## Architecture
-![alt text](https://github.com/Erik-Kelemen/Stock-Portfolio-Analyzer/blob/main/imgs/StockPortfolioAnalyzer.drawio.png)
+![alt text](https://github.com/Erik-Kelemen/Stock-Portfolio-Analyzer/blob/main/imgs/StockPortfolioAnalyzer.png)
 
 ## Components
 The analyzer consists of four primary components:
