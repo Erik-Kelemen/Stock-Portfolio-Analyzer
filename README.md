@@ -2,11 +2,12 @@
 
 The Stock Portfolio Analyzer is an easy to use open-source Python application that allows users to upload CSVs of stock trades and view their portfolio’s P&L, Net Asset Value, volatility, alpha, beta, and Sharpe ratio over time.
 The application reads the user's portfolio into a SQLite3 database and scrapes the web for real-world historical stock prices of the involved tickers. It also downloads the treasury bill rates necessary for computing the risk-free rate for the Sharpe ratio. 
+
 The portfolio calculates Net Asset Value across time efficiently using through the use of matrix multiplication and NumPy broadcasting while accounting for currency conversion (USD and CAD are currently supported). 
 
 The analyzer also empowers users with advanced risk management tools, including Value at Risk (VaR) and efficient frontier analysis.
 
-All this data is presented on an intuitive, easy to use Jupyter dashboard for users to view an in-depth analysis of their portfolio.
+All this data is presented on an intuitive, easy to use Streamlit dashboard for users to view an in-depth analysis of their portfolio.
 
 ## Architecture
 ![alt text](https://github.com/Erik-Kelemen/Stock-Portfolio-Analyzer/blob/main/imgs/StockPortfolioAnalyzer.drawio.png)
@@ -18,7 +19,7 @@ The analyzer consists of four primary components:
 #### dummy_trades.py
 Randomly generates a valid dummy trading portfolio with the following stocks between 2022-01-01 and 2022-12-31, ignoring all weekends and market holidays -- 'AAPL', 'GOOGL', 'MSFT', 'AMZN', 'FB', "RY.TO", "SHOP.TO", "BNS.TO", "TD.TO", "ENB.TO". A "valid" portfolio is one that never tries to sell more shares of a particular stock than it holds. The output file will be written to data/trades.csv. Be careful if you do not want this overwritten!
 
-You can skip this step if you can supplement your own prices.csv, as long as it follows the specified format. Please refer to the 'How to Use' section for formatting examples. 
+You can skip this step if you can supplement your own trades.csv, as long as it follows the specified format. Please refer to the 'How to Use' section for formatting examples. 
 
 ### 2. DataManager:
 #### data_loader.py
@@ -28,7 +29,7 @@ Will also call the scraper to collect the treasury bill rates to compute the ris
 
 #### web_scraper.py
 Web scraper for the S&P 500 and Toronto exchange (TSX) using yfinance. Accepts a list of tickers to scrape for and a date range to query between, and uploads the results to the SQLite3 database and returns the results as a dataframe.
-Will also scrape for the treasury bill rates to compute the risk-free rate for computing Sharpe ratios, and the CAD/USD  exchange rates.
+Will also scrape for the treasury bill rates to compute the risk-free rate for computing Sharpe ratios, and the CAD/USD exchange rates.
 You can replace this with your own web scraper to procure the required data.
 
 ### 3. PortfolioAnalyzer:
@@ -37,17 +38,15 @@ Manages the communication layer between the prices.csv & trades.csv files with t
 
 #### analyzer.py
 Base class supporting different preprocessing, reformatting, interpolation, and analytical functions, and skeleton for analyze() and display() to be overridden by subclasses.
-#### portfolio_calc.py
-Computes portfolio P&L, Net Asset Value, volatility, alpha, beta, and Sharpe ratio over time. It leverages matrix multiplication and numpy broadcasting to optimize calculations, taking into account currency conversions.
 
 #### nav_analyzer.py
-
+Computes portfolio Net Asset Value by leverages matrix multiplication and NumPy broadcasting to optimize calculations.
 
 #### pnl_analyzer.py
-
+Computes portfolio net P&L, unrealized P&L, and realized P&L, for both the user portfolio and the dummy portfolio.
 
 #### risk_analyzer.py
-Computes portfolio Value at Risk (VaR) and efficient frontier analysis (EFA) over time. 
+Computes portfolio volatility, alpha, beta, and Sharpe ratio over time. Uses the dummy portfolio as a benchmark and computes Value at Risk (VaR) at 90%, 95%, and 99% confidence intervals. Also performs an Ordinary Least Squares (OLS) regression between the user and dummy portfolio using scikit-learn, yielding various statistics such as R-squared. 
 
 ### 4. Dashboard: 
 #### dash.py
