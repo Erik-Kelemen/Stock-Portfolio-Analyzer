@@ -59,7 +59,7 @@ Follow these steps to use the Stock Portfolio Analyzer:
 1. Clone this git repository locally and launch a python virtual environment (https://learn.microsoft.com/en-us/windows/python/web-frameworks).
 2. Use your favorite package manager (I use pip) to install the popular yfinance, Pandas, NumPy, Requests, and BeautifulSoup libraries. 
 3. Upload your trading portfolio as a CSV file with the columns date, ticker, quantity, to the /data/ directory. If you do not have one, you can randomly generate one with the DataSource/dummy_trades.py script.
-4. Execute the Jupyter Dashboard in interface/dash.ipynb.
+4. Execute the Streamlit Dashboard in dash.py by running ```streamlit run dash.py```.
 5. Feel free to customize and integrate the Stock Portfolio Analyzer into your own projects.
 
 ## Future Work
